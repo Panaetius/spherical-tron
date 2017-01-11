@@ -1,5 +1,6 @@
 from OpenGL.GL import *
 from PIL import Image
+import os
 
 class Model(object):
     def __init__(self, path, swapyz=False):
@@ -29,7 +30,8 @@ class Model(object):
             elif values[0] in ('usemtl', 'usemat'):
                 material = values[1]
             elif values[0] == 'mtllib':
-                self.mtl = self.__mtl(values[1])
+                dir = os.path.dirname(os.path.realpath(path))
+                self.mtl = self.__mtl(os.path.join(dir, values[1]))
             elif values[0] == 'f':
                 face = []
                 texcoords = []
