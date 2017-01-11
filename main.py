@@ -41,7 +41,9 @@ def main():
     glutDisplayFunc(display)
     glutIdleFunc(gameloop)
     glutKeyboardFunc(keyboard)
+    glutKeyboardUpFunc(keyboardUp)
     glutSpecialFunc(keyboard_special)
+    glutSpecialUpFunc(keyboard_specialUp)
 
     # set camera projection, position and direction
     glMatrixMode(GL_PROJECTION)
@@ -87,9 +89,22 @@ def keyboard(ch, x, y):
     return 0
 
 
+def keyboardUp(ch, x, y):
+    global scene
+    scene.keyboardUp(ch, x, y)
+    glutPostRedisplay()
+    return 0
+
+
 def keyboard_special(ch, x, y):
     global scene
     scene.keyboard_special(ch, x, y)
+    glutPostRedisplay()
+    return 0
+
+def keyboard_specialUp(ch, x, y):
+    global scene
+    scene.keyboard_specialUp(ch, x, y)
     glutPostRedisplay()
     return 0
 
