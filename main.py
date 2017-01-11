@@ -1,55 +1,77 @@
-#! /usr/bin/env python
-from OpenGLContext import testingcontext
-BaseContext = testingcontext.getInteractive()
+import sys
+
 from OpenGL.GL import *
-from OpenGL.arrays import vbo
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
 from OpenGLContext.arrays import *
-from OpenGL.GL import shaders
 
+from Framework import *
+from Framework import Scene
 
-class TestContext( BaseContext ):
-    """Creates a simple vertex shader..."""
+name = 'spherical tron'
 
-    def OnInit(self):
-        VERTEX_SHADER = shaders.compileShader("""#version 120
-                void main() {
-                    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-                }""", GL_VERTEX_SHADER)
-        FRAGMENT_SHADER = shaders.compileShader("""#version 120
-                void main() {
-                    gl_FragColor = vec4( 0, 1, 0, 1 );
-                }""", GL_FRAGMENT_SHADER)
-        self.shader = shaders.compileProgram(VERTEX_SHADER, FRAGMENT_SHADER)
-        self.vbo = vbo.VBO(
-            array([
-                [0, 1, 0],
-                [-1, -1, 0],
-                [1, -1, 0],
-                [2, -1, 0],
-                [4, -1, 0],
-                [4, 1, 0],
-                [2, -1, 0],
-                [4, 1, 0],
-                [2, 1, 0],
-            ], 'f')
-        )
+scene = ''
 
-    def Render(self, mode):
-        """Render the geometry for the scene."""
-        shaders.glUseProgram(self.shader)
-        try:
-            self.vbo.bind()
-            try:
-                glEnableClientState(GL_VERTEX_ARRAY);
-                glVertexPointerf(self.vbo)
-                glDrawArrays(GL_TRIANGLES, 0, 9)
-            finally:
-                self.vbo.unbind()
-                glDisableClientState(GL_VERTEX_ARRAY);
-        finally:
-            shaders.glUseProgram(0)
+def main():
+    global scene
+    #initialize glut window
+    glutInit(sys.argv)
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
+    glutInitWindowSize(1024,768)
+    glutCreateWindow(name)
 
-if __name__ == "__main__":
-    TestContext.ContextMainLoop()
+    #set shader and defaults
+    glClearColor(0.,0.,0.,1.)
+    glShadeModel(GL_SMOOTH)
+    glEnable(GL_CULL_FACE)
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_LIGHTING)
 
+    #add light
+    lightZeroPosition = [10.,4.,10.,1.]
+    lightZeroColor = [0.8,1.0,0.8,1.0] #green tinged
+    glLightfv(GL_LIGHT0, GL_POSITION, lightZeroPosition)
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor)
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1)
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05)
+    glEnable(GL_LIGHT0)
 
+    #set glut functions
+    glutDisplayFunc(display)
+    glutIdleFunc(gameloop)
+
+    #set camera projection, position and direction
+    glMatrixMode(GL_PROJECTION)
+    gluPerspective(40.,1.,1.,40.)
+    glMatrixMode(GL_MODELVIEW)
+    gluLookAt(0,0,30,
+              0,0,0,
+              0,1,0)
+    glPushMatrix()
+
+    #init scene
+    scene = Scene.Scene()
+
+    glutMainLoop()
+    return
+
+def display():
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+    glPushMatrix()
+    color = [1.0,0.,0.,1.]
+    glMaterialfv(GL_FRONT,GL_DIFFUSE,color)
+
+    scene.render()
+
+    glPopMatrix()
+    glutSwapBuffers()
+    return
+
+def gameloop():
+    #main game loop, called repeatedly
+    global scene
+    scene.update()
+    glutPostRedisplay()
+    return
+
+if __name__ == '__main__': main()

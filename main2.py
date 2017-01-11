@@ -1,11 +1,11 @@
-from OpenGL.GLU import *
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.arrays import vbo
-from OpenGLContext.arrays import *
 import sys
 
-from Framework.Models import Model
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+from OpenGLContext.arrays import *
+
+from Framework import Model
 
 name = 'spherical tron'
 
