@@ -37,6 +37,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         self.cloakEnergy = self.maxCloakEnergy
         self.cloakEnergyDrain = 1000 # energy per second
         self.energyGain = 250 # energy/second
+        self.cloakAlpha = 0.1
 
 
     def update(self, deltaTime, camera):
@@ -69,7 +70,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         color = self.color[:]
 
         if self.cloaked:
-            color[3] = 0.5
+            color[3] = self.cloakAlpha
             glDepthMask(False)
 
         glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)

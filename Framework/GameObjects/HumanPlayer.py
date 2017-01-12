@@ -17,8 +17,12 @@ from OpenGL.GLU import *
 
 
 class HumanPlayer(Bike):
+    def __init__(self, position=[50.0, 0.0, 0.0], xRotation=0.0, yRotation=0.0, zRotation=0.0, color = [1.0,1.0,1.0,1.], keyboardHandler = None):
+        Bike.__init__(self, position=position, xRotation=xRotation, yRotation=yRotation, zRotation=zRotation, color=color, keyboardHandler = keyboardHandler)
+        self.cloakAlpha = 0.4
 
-   def update(self, deltaTime, camera):
+
+    def update(self, deltaTime, camera):
         if self.keyboardHandler.keyDown(Keys.LEFT):
             self.direction = -np.cross(self.direction, self.position)
         elif self.keyboardHandler.keyDown(Keys.RIGHT):
