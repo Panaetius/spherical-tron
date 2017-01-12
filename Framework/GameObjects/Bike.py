@@ -36,7 +36,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         self.maxCloakEnergy = 1000
         self.cloakEnergy = self.maxCloakEnergy
         self.cloakEnergyDrain = 1000 # energy per second
-        self.energyGain = 0.1
+        self.energyGain = 250 # energy/second
 
 
     def update(self, deltaTime, camera):
@@ -61,7 +61,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
             if self.cloakEnergy < 0:
                 self.cloaked = False
         elif self.cloakEnergy < self.maxCloakEnergy:
-            self.cloakEnergy = max(self.maxCloakEnergy, self.cloakEnergy + deltaTime * self.energyGain)
+            self.cloakEnergy = min(self.maxCloakEnergy, self.cloakEnergy + deltaTime * self.energyGain/1000)
 
         return
 
