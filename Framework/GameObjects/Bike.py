@@ -22,7 +22,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         self.maxSpeed = 10
 
 
-    def update(self, deltaTime):
+    def update(self, deltaTime, camera):
         if self.keyboardHandler.keyDown(Keys.LEFT):
             self.direction = np.cross(self.direction, self.position)
         elif self.keyboardHandler.keyDown(Keys.RIGHT):
@@ -35,10 +35,32 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         self.direction = (self.direction / np.linalg.norm(self.direction)).tolist()
         rot_mat = self.rotation_matrix(self.direction, self.speed * deltaTime / 1000)
         self.position = (np.dot(rot_mat, self.position)).tolist()
+
+        # forward = np.cross(self.position, self.direction)
+        # forward = forward / np.linalg.norm(forward)
+        #
+        # up = np.array(self.position) / np.linalg.norm(self.position)
+        #
+        # left = np.cross(up, forward)
+        #
+        # mat = np.array([[-left[0], -left[1], -left[2], 0],
+        #                 [-up[0], -up[1], -up[2], 0],
+        #                 [-forward[0], -forward[1], -forward[2], 0],
+        #                 [self.position[0], self.position[1], self.position[2], 1]])
+        #
+        # camera.viewmatrix = mat
+
+        dir = np.cross(self.direction, self.position)
+        dir = dir / np.linalg.norm(dir)
+        unit_pos = np.array(self.position)/np.linalg.norm(self.position)
+        camera.position =  np.array(self.position) - 15 * dir + 5*unit_pos
+        camera.lookat = np.array(self.position)
+        camera.up = unit_pos#-np.array(self.bikeObject.position) / np.linalg.norm(self.bikeObject.position)
+
         return
 
     def render(self):
-        glMaterialfv(GL_FRONT, GL_DIFFUSE, self.color)
+        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, self.color)
         #glTranslate(self.position[0], self.position[1], self.position[2])
 
         #orientation
@@ -61,7 +83,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         forward = np.cross(self.position, self.direction)
         forward = forward/np.linalg.norm(forward)
 
-        up = -np.array(self.position)/np.linalg.norm(self.position)
+        up = np.array(self.position)/np.linalg.norm(self.position)
 
         left = np.cross(up, forward)
 
@@ -71,7 +93,6 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
                         [self.position[0], self.position[1], self.position[2], 1]])
         glPushMatrix()
         glMultMatrixd(mat)
-
         glCallList(self.model.gl_list)
         glPopMatrix()
 

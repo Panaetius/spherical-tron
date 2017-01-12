@@ -1,3 +1,3 @@
 class UpdatableGameobject(object):
-    def update(self, deltaTime):
+    def update(self, deltaTime, camera):
         pass
