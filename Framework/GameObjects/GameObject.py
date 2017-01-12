@@ -11,8 +11,10 @@ class GameObject(object):
 
     def render(self):
         glMaterialfv(GL_FRONT, GL_DIFFUSE, self.color)
+        glPushMatrix()
         glTranslate(self.position[0], self.position[1], self.position[2])
         glRotate(self.xRotation, 1, 0, 0)
         glRotate(self.yRotation, 0, 1, 0)
         glRotate(self.zRotation, 0, 0, 1)
         glCallList(self.model.gl_list)
+        glPopMatrix()

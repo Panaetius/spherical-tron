@@ -33,8 +33,8 @@ def main():
     lightZeroColor = [0.8, 1.0, 0.8, 1.0]  # green tinged
     glLightfv(GL_LIGHT0, GL_POSITION, lightZeroPosition)
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor)
-    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1)
-    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05)
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.01)
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.01)
     glEnable(GL_LIGHT0)
 
     # set glut functions
@@ -47,12 +47,12 @@ def main():
 
     # set camera projection, position and direction
     glMatrixMode(GL_PROJECTION)
-    gluPerspective(40., 1., 1., 40.)
+    gluPerspective(40., 1., 1., 300.)
     glMatrixMode(GL_MODELVIEW)
-    gluLookAt(0, 0, 30,
+    gluLookAt(0, 0, 200,
               0, 0, 0,
               0, 1, 0)
-    glPushMatrix()
+    #glPushMatrix()
 
     # init scene
     scene = Scene.Scene()

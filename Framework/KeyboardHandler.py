@@ -1,8 +1,11 @@
 class KeyboardHandler(object):
     def __init__(self):
         self.pressed_keys = set()
+        self.down_keys = set()
 
     def keyboard(self, ch, x, y):
+        if not ch in self.pressed_keys:
+            self.down_keys.add(ch)
         self.pressed_keys.add(ch)
         return
 
@@ -11,6 +14,9 @@ class KeyboardHandler(object):
         return
 
     def keyboard_special(self, ch, x, y):
+        if not 255 + ch in self.pressed_keys:
+            self.down_keys.add(255 + ch)
+
         self.pressed_keys.add(255 + ch)
         return
 
@@ -20,6 +26,9 @@ class KeyboardHandler(object):
 
     def keyPressed(self, ch):
         return ch in self.pressed_keys
+
+    def keyDown(self, ch):
+        return ch in self.down_keys
 
 
 class Keys:
