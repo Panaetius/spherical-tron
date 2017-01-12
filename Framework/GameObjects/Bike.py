@@ -1,6 +1,9 @@
 from OpenGL.GL import *
 
 from math import *
+import time
+
+from OpenGL.arrays import vbo
 
 from Framework import Model
 from Framework.GameObjects.GameObject import GameObject
@@ -18,15 +21,19 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         KeyboardObject.__init__(self, keyboardHandler)
         self.direction = [0, 0, 1]
         self.speed = 0.0
-        self.acceleration = 2.0
-        self.maxSpeed = 10
+        self.acceleration = 1.0
+        self.maxSpeed = 5
+        self.trail = []
+        self.trailLength = 3
+        self.trailHeight = 5
+        self.trailColor = [0, 0, 1, 0.75]
 
 
     def update(self, deltaTime, camera):
         if self.keyboardHandler.keyDown(Keys.LEFT):
-            self.direction = np.cross(self.direction, self.position)
-        elif self.keyboardHandler.keyDown(Keys.RIGHT):
             self.direction = -np.cross(self.direction, self.position)
+        elif self.keyboardHandler.keyDown(Keys.RIGHT):
+            self.direction = np.cross(self.direction, self.position)
         elif self.keyboardHandler.keyPressed(Keys.UP):
             self.speed = min(self.maxSpeed, self.speed + self.acceleration * deltaTime/1000)
         elif self.keyboardHandler.keyPressed(Keys.DOWN):
@@ -36,24 +43,13 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         rot_mat = self.rotation_matrix(self.direction, self.speed * deltaTime / 1000)
         self.position = (np.dot(rot_mat, self.position)).tolist()
 
-        # forward = np.cross(self.position, self.direction)
-        # forward = forward / np.linalg.norm(forward)
-        #
-        # up = np.array(self.position) / np.linalg.norm(self.position)
-        #
-        # left = np.cross(up, forward)
-        #
-        # mat = np.array([[-left[0], -left[1], -left[2], 0],
-        #                 [-up[0], -up[1], -up[2], 0],
-        #                 [-forward[0], -forward[1], -forward[2], 0],
-        #                 [self.position[0], self.position[1], self.position[2], 1]])
-        #
-        # camera.viewmatrix = mat
+        self.addTrail()
 
+        #set camera to follow camera
         dir = np.cross(self.direction, self.position)
         dir = dir / np.linalg.norm(dir)
         unit_pos = np.array(self.position)/np.linalg.norm(self.position)
-        camera.position =  np.array(self.position) - 15 * dir + 5*unit_pos
+        camera.position =  np.array(self.position) - 15 * dir + 8*unit_pos + 0.1 * np.array(self.direction)
         camera.lookat = np.array(self.position)
         camera.up = unit_pos#-np.array(self.bikeObject.position) / np.linalg.norm(self.bikeObject.position)
 
@@ -61,25 +57,8 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
 
     def render(self):
         glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, self.color)
-        #glTranslate(self.position[0], self.position[1], self.position[2])
 
-        #orientation
-        # obj_forward = [0,0,1]
-        # obj_up = [0,-1,0]
-
-        # up_angle = np.degrees(np.arccos(np.dot(obj_up, np.array(self.position))/(np.linalg.norm(self.position))))
-        # up_rot = np.cross(obj_up, np.array(self.position))
-        #
-        # forward = np.cross(self.position, self.direction)
-        # rot_mat = self.rotation_matrix(up_rot, -up_angle)
-        # forward = np.dot(rot_mat, forward)
-        #
-        # forward_angle = np.degrees(np.arccos(np.dot(obj_forward, forward) / (np.linalg.norm(forward) * np.linalg.norm(obj_forward))))
-        # forward_rot = np.cross(obj_forward, forward)
-        #
-        # glRotate(forward_angle, forward_rot[0], forward_rot[1], forward_rot[2])
-        # glRotate(up_angle, up_rot[0], up_rot[1], up_rot[2])
-
+        #calculate world matrix for rotation&position
         forward = np.cross(self.position, self.direction)
         forward = forward/np.linalg.norm(forward)
 
@@ -92,9 +71,13 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
                         [forward[0], forward[1], forward[2], 0],
                         [self.position[0], self.position[1], self.position[2], 1]])
         glPushMatrix()
+        #set world matrix
         glMultMatrixd(mat)
+
+        #render
         glCallList(self.model.gl_list)
         glPopMatrix()
+        self.renderTrail()
 
     def rotation_matrix(self, axis, theta):
         """
@@ -110,3 +93,33 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
                          [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
                          [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
+
+    def addTrail(self):
+        unit_pos = np.array(self.position)/np.linalg.norm(self.position)
+        currentTime = time.time() * 1000
+        self.trail.append([self.position, self.position + self.trailHeight * unit_pos, currentTime])
+        self.trail = [t for t in self.trail if currentTime - t[2] < self.trailLength * 1000]
+
+    def renderTrail(self):
+        if len(self.trail) < 2:
+            return
+
+        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, self.trailColor)
+
+        glBegin(GL_QUAD_STRIP)
+
+        for i in range(0, len(self.trail), 1):
+            current = self.trail[i]
+            glVertex3f(current[1][0], current[1][1], current[1][2])
+            glVertex3f(current[0][0], current[0][1], current[0][2])
+
+        glEnd()
+
+        glBegin(GL_QUAD_STRIP)
+
+        for i in range(0, len(self.trail), 1):
+            current = self.trail[i]
+            glVertex3f(current[0][0], current[0][1], current[0][2])
+            glVertex3f(current[1][0], current[1][1], current[1][2])
+
+        glEnd()

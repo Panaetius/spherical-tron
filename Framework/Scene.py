@@ -18,7 +18,7 @@ class Scene(KeyboardHandler):
         self.addGameObject(self.bikeObject)
 
         sphereModel = Model.Model('Assets/Models/Sphere.obj')
-        sphereObject = GameObject.GameObject(sphereModel, position = [0, 0, 0], color=[0, 0.5, 0, 0.5], wireframe=True)
+        sphereObject = GameObject.GameObject(sphereModel, position = [0, 0, 0], color=[0, 0.5, 0, 1], wireframe=True)
         self.addGameObject(sphereObject)
 
         self.lastUpdate = time.time() * 1000
