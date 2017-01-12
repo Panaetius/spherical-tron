@@ -34,32 +34,13 @@ class HumanPlayer(Bike,KeyboardObject):
             self.cloaked = True
             self.trail = []
 
-        self.direction = (self.direction / np.linalg.norm(self.direction)).tolist()
-        rot_mat = self.rotation_matrix(self.direction, self.speed * deltaTime / 1000)
-        self.position = (np.dot(rot_mat, self.position)).tolist()
-
-        dir = np.cross(self.direction, self.position)
-        dir = dir / np.linalg.norm(dir)
-
-        self.collisionSphereCenter = self.position + (5.8 - self.collisionSphereRadius) * dir
-
-        if self.speed > 0 and not self.cloaked:
-            self.addTrail()
-
-        if self.checkCollisionWithTrail(self.trail):
-            sys.exit(0) #you lost
-
-        if self.cloaked:
-            self.cloakEnergy -= deltaTime * self.cloakEnergyDrain/1000
-            if self.cloakEnergy < 0:
-                self.cloaked = False
-        elif self.cloakEnergy < self.maxCloakEnergy:
-            self.cloakEnergy = max(self.maxCloakEnergy, self.cloakEnergy + deltaTime * self.energyGain)
-
+        Bike.update(self, deltaTime, camera)
 
         #set camera to follow camera
+        dir = np.cross(self.direction, self.position)
+        dir = dir / np.linalg.norm(dir)
         unit_pos = np.array(self.position)/np.linalg.norm(self.position)
-        camera.position =  np.array(self.position) - 15 * dir + 8*unit_pos + 0.1 * np.array(self.direction)
+        camera.position =  np.array(self.position) - 15 * dir + 8 * unit_pos + 0.1 * np.array(self.direction)
         camera.lookat = np.array(self.position)
         camera.up = unit_pos
 
