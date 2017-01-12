@@ -27,8 +27,8 @@ class Scene(KeyboardHandler):
         self.bikeObject = HumanPlayer(position = [0, 500, 0], keyboardHandler = self)
         self.addGameObject(self.bikeObject)
 
-        # sphereObject = Sphere(position = [0, 0, 0], color=[0, 0, 0, 1])
-        # self.addGameObject(sphereObject)
+        sphereObject = Sphere(position = [0, 0, 0], color=[0, 0, 0, 1])
+        self.addGameObject(sphereObject)
 
         self.lastUpdate = time.time() * 1000
         self.camera = Camera([0,0,100],[0,0,0],[0,1,0])
@@ -162,11 +162,11 @@ class Scene(KeyboardHandler):
 
 
         self.lastUpdate += delta
-        self.fps_track.append(1000 / delta)
+        self.fps_track.append(delta)
         self.fps_track = self.fps_track[-10:] #track last 10 framerate
 
         if time.time() - self.fps_time > 0.2:
-            self.fps = reduce(lambda x, y: x + y, self.fps_track) / len(self.fps_track)
+            self.fps = 1000 / (reduce(lambda x, y: x + y, self.fps_track) / len(self.fps_track))
             self.fps_time = time.time()
         self.down_keys = set()
 
