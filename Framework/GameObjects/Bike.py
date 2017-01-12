@@ -22,8 +22,8 @@ class Bike(GameObject, UpdatableGameobject):
         self.previousPosition = position
         self.direction = [0, 0, 1]
         self.speed = 0.0
-        self.acceleration = 1.0
-        self.maxSpeed = 5
+        self.acceleration = 0.5
+        self.maxSpeed = 0.5
         self.trail = []
         self.trailLength = 3
         self.trailHeight = 5
@@ -53,7 +53,7 @@ class Bike(GameObject, UpdatableGameobject):
         if self.checkCollisionWithTrail(self.trail):
             sys.exit(0) #you lost
 
-        if self.speed > 0 and not self.cloaked:
+        if not self.cloaked:
             self.addTrail()
 
         if self.cloaked:
@@ -112,12 +112,13 @@ class Bike(GameObject, UpdatableGameobject):
                          [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
 
     def addTrail(self):
-        unit_pos = np.array(self.position)/np.linalg.norm(self.position)
-        dir = np.cross(self.direction, self.position)
-        dir = dir / np.linalg.norm(dir)
         currentTime = time.time() * 1000
-        #trail should extend below sphere and behind the center of the bike for intersection
-        self.trail.append([np.array(self.position) - 5*unit_pos - 0.2 * dir, self.position + self.trailHeight * unit_pos - 0.2 * dir, currentTime])
+        if self.speed > 0:
+            unit_pos = np.array(self.position)/np.linalg.norm(self.position)
+            dir = np.cross(self.direction, self.position)
+            dir = dir / np.linalg.norm(dir)
+            #trail should extend below sphere and behind the center of the bike for intersection
+            self.trail.append([np.array(self.position) - 5*unit_pos - 0.2 * dir, self.position + self.trailHeight * unit_pos - 0.2 * dir, currentTime])
         self.trail = [t for t in self.trail if currentTime - t[2] < self.trailLength * 1000]
 
     def renderTrail(self):

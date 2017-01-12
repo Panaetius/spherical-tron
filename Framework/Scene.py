@@ -11,6 +11,10 @@ from Framework.GameObjects.AIPlayer import AIPlayer
 from Framework.KeyboardHandler import KeyboardHandler
 import numpy as np
 
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.arrays import vbo
+
 
 class Scene(KeyboardHandler):
     def __init__(self):
@@ -23,9 +27,9 @@ class Scene(KeyboardHandler):
 
         
 
-        sphereModel = Model.Model('Assets/Models/Sphere.obj')
-        sphereObject = GameObject.GameObject(sphereModel, position = [0, 0, 0], color=[0, 0.5, 0, 1], wireframe=True)
-        self.addGameObject(sphereObject)
+        # sphereModel = Model.Model('Assets/Models/Sphere.obj')
+        # sphereObject = GameObject.GameObject(sphereModel, position = [0, 0, 0], color=[0, 0.5, 0, 1], wireframe=True)
+        # self.addGameObject(sphereObject)
 
         self.lastUpdate = time.time() * 1000
         self.camera = Camera([0,0,100],[0,0,0],[0,1,0])
@@ -43,6 +47,97 @@ class Scene(KeyboardHandler):
 
         self.camera.render()
 
+    def renderUI(self, x, y):
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        glLoadIdentity()
+        #glOrtho(0, x, y, 0, -1, 1)
+        gluOrtho2D(0, x, 0, y)
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        glLoadIdentity()
+        #glDepthMask(0)
+        #glDisable(GL_DEPTH_TEST)
+        #glDisable(GL_CULL_FACE)
+        glDisable(GL_TEXTURE_2D)
+        glDisable(GL_LIGHTING)
+
+        #render UI
+        self.drawSpeedBar(x, y)
+        self.drawEnergyBar(x, y)
+
+        glPopMatrix()
+        #glPopMatrix()
+        #glDepthMask(1)
+        #glEnable(GL_DEPTH_TEST)
+        #glEnable(GL_CULL_FACE)
+        glEnable(GL_TEXTURE_2D)
+        glEnable(GL_LIGHTING)
+        glMatrixMode(GL_PROJECTION)
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+
+    def drawSpeedBar(self, x, y):
+        startX = x - x * 0.01
+        endY = y * 0.5 * self.bikeObject.speed / self.bikeObject.maxSpeed
+
+        glColor3f(0, 0, 1)
+        glBegin(GL_QUADS)
+        glVertex3f(startX, endY, -0.02)
+        glVertex3f(startX, 0, -0.02)
+        glVertex3f(x, 0, -0.02)
+        glVertex3f(x, endY, -0.02)
+        glEnd()
+
+        endY = y * 0.5
+
+        glColor3f(0, 0, 0)
+        glBegin(GL_QUADS)
+        glVertex3f(startX, endY, -0.02)
+        glVertex3f(startX, 0, -0.02)
+        glVertex3f(x, 0, -0.02)
+        glVertex3f(x, endY, -0.02)
+        glEnd()
+
+        glColor3f(1, 1, 1)
+        glBegin(GL_QUADS)
+        glVertex3f(startX - 1, endY + 1, -0.02)
+        glVertex3f(startX - 1, 0, -0.02)
+        glVertex3f(x, 0, -0.02)
+        glVertex3f(x, endY + 1, -0.02)
+        glEnd()
+
+    def drawEnergyBar(self, x, y):
+        startX = x - x * 0.02 - 1
+        endX = x - x * 0.01 - 1
+        endY = y * 0.5 * self.bikeObject.cloakEnergy / self.bikeObject.maxCloakEnergy
+
+        glColor3f(0, 1, 0)
+        glBegin(GL_QUADS)
+        glVertex3f(startX, endY, -0.02)
+        glVertex3f(startX, 0, -0.02)
+        glVertex3f(endX, 0, -0.02)
+        glVertex3f(endX, endY, -0.02)
+        glEnd()
+
+        endY = y * 0.5
+
+        glColor3f(0, 0, 0)
+        glBegin(GL_QUADS)
+        glVertex3f(startX, endY, -0.02)
+        glVertex3f(startX, 0, -0.02)
+        glVertex3f(endX, 0, -0.02)
+        glVertex3f(endX, endY, -0.02)
+        glEnd()
+
+        glColor3f(1, 1, 1)
+        glBegin(GL_QUADS)
+        glVertex3f(startX - 1, endY + 1, -0.02)
+        glVertex3f(startX - 1, 0, -0.02)
+        glVertex3f(endX + 1, 0, -0.02)
+        glVertex3f(endX + 1, endY + 1, -0.02)
+        glEnd()
+
     def update(self):
         #update the scene
         delta = time.time() * 1000 - self.lastUpdate
@@ -52,7 +147,7 @@ class Scene(KeyboardHandler):
 
 
 
-        self.lastUpdate = time.time() * 1000
+        self.lastUpdate += delta
         self.down_keys = set()
 
         return

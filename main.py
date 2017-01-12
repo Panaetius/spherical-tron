@@ -11,6 +11,8 @@ from Framework import Scene
 name = 'spherical tron'
 
 scene = ''
+width=1024
+height=768
 
 
 def main():
@@ -18,8 +20,6 @@ def main():
     # initialize glut window
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE)
-    width=1024
-    height=768
     glutInitWindowSize(width, height)
     glutCreateWindow(name)
 
@@ -68,13 +68,15 @@ def main():
 def display():
     global scene
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glPushMatrix()
+    #glPushMatrix()
     color = [1.0, 0., 0., 1.]
     glMaterialfv(GL_FRONT, GL_DIFFUSE, color)
 
     scene.render()
 
-    glPopMatrix()
+    scene.renderUI(width, height)
+
+    #glPopMatrix()
     glutSwapBuffers()
     return
 
