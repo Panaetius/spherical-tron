@@ -54,7 +54,6 @@ def main():
     gluLookAt(10, 101, 0,
               0, 101, 0,
               0, 1, 0)
-    # glPushMatrix()
 
     # init scene
     scene = Scene.Scene()
@@ -73,7 +72,6 @@ def display():
     scene.render()
 
     glPopMatrix()
-    #scene.camera.render()
     glutSwapBuffers()
     return
 

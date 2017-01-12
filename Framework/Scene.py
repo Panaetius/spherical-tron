@@ -30,8 +30,6 @@ class Scene(KeyboardHandler):
         self.gameObjects.append(gameObject)
 
     def render(self):
-        # self.camera.render()
-
         for gameObject in self.gameObjects:
             gameObject.render()
 

@@ -17,7 +17,6 @@ class GameObject(object):
         if self.wireframe:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
-        # glMultMatrixd(camera.viewmatrix)
         glTranslate(self.position[0], self.position[1], self.position[2])
         glRotate(self.xRotation, 1, 0, 0)
         glRotate(self.yRotation, 0, 1, 0)

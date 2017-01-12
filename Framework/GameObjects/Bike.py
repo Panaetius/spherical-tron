@@ -2,6 +2,7 @@ from OpenGL.GL import *
 
 from math import *
 import time
+import sys
 
 from OpenGL.arrays import vbo
 
@@ -27,6 +28,8 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         self.trailLength = 3
         self.trailHeight = 5
         self.trailColor = [0, 0, 1, 0.75]
+        self.collisionSphereRadius = 1.2
+        self.collisionSphereCenter = np.array([0,0,0])
 
 
     def update(self, deltaTime, camera):
@@ -43,15 +46,22 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         rot_mat = self.rotation_matrix(self.direction, self.speed * deltaTime / 1000)
         self.position = (np.dot(rot_mat, self.position)).tolist()
 
-        self.addTrail()
-
-        #set camera to follow camera
         dir = np.cross(self.direction, self.position)
         dir = dir / np.linalg.norm(dir)
+
+        self.collisionSphereCenter = self.position + (5.8 - self.collisionSphereRadius) * dir
+
+        if self.speed > 0:
+            self.addTrail()
+
+        if self.checkCollisionWithTrail(self.trail):
+            sys.exit(0) #you lost
+
+        #set camera to follow camera
         unit_pos = np.array(self.position)/np.linalg.norm(self.position)
         camera.position =  np.array(self.position) - 15 * dir + 8*unit_pos + 0.1 * np.array(self.direction)
         camera.lookat = np.array(self.position)
-        camera.up = unit_pos#-np.array(self.bikeObject.position) / np.linalg.norm(self.bikeObject.position)
+        camera.up = unit_pos
 
         return
 
@@ -97,7 +107,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
     def addTrail(self):
         unit_pos = np.array(self.position)/np.linalg.norm(self.position)
         currentTime = time.time() * 1000
-        self.trail.append([self.position, self.position + self.trailHeight * unit_pos, currentTime])
+        self.trail.append([np.array(self.position), self.position + self.trailHeight * unit_pos, currentTime])
         self.trail = [t for t in self.trail if currentTime - t[2] < self.trailLength * 1000]
 
     def renderTrail(self):
@@ -123,3 +133,32 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
             glVertex3f(current[1][0], current[1][1], current[1][2])
 
         glEnd()
+
+    def checkCollisionWithTrail(self, trail):
+        for i in range(0, len(self.trail) - 1, 1):
+            first = trail[i]
+            second = trail[i + 1]
+            point = first[0]
+            v1 = first[1] - first[0]
+            v2 = second[0] - first[0]
+            normal = np.cross(v1, v2)
+            normal = normal/np.linalg.norm(normal)
+            distance = np.dot(self.collisionSphereCenter - point, normal)
+
+            if distance > self.collisionSphereRadius:
+                continue
+
+            #check if the sphere is actually within the rectangle
+            intersect = self.collisionSphereCenter - distance * normal
+            t = intersect - point
+            d1 = np.dot(t, v1)
+            d2 = np.dot(t, v2)
+            l1 = np.linalg.norm(v1)
+            l2 = np.linalg.norm(v2)
+
+            if d1 < -distance or d1 > l1 + distance or d2 < -distance or d2 > l2 + distance:
+                continue
+
+            return True
+
+        return False
