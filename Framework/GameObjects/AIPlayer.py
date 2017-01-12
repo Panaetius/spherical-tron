@@ -16,23 +16,22 @@ import numpy as np
 from OpenGL.GLU import *
 
 
-class HumanPlayer(Bike,KeyboardObject):
-    def __init__(self, position=[50.0, 0.0, 0.0], xRotation=0.0, yRotation=0.0, zRotation=0.0, color = [1.0,1.0,1.0,1.], keyboardHandler = None):
-        KeyboardObject.__init__(self, keyboardHandler)
-        Bike.__init__(self, position, xRotation, yRotation, zRotation, color)
+class AIPlayer(Bike):
 
-    def update(self, deltaTime, camera):
-        if self.keyboardHandler.keyDown(Keys.LEFT):
-            self.direction = -np.cross(self.direction, self.position)
-        elif self.keyboardHandler.keyDown(Keys.RIGHT):
-            self.direction = np.cross(self.direction, self.position)
-        elif self.keyboardHandler.keyPressed(Keys.UP):
-            self.speed = min(self.maxSpeed, self.speed + self.acceleration * deltaTime/1000)
-        elif self.keyboardHandler.keyPressed(Keys.DOWN):
-            self.speed = max(0.0, self.speed - self.acceleration * deltaTime/1000)
-        elif self.keyboardHandler.keyDown(Keys.SPACE):
-            self.cloaked = True
-            self.trail = []
+   def __init__(self, position=[50.0, 0.0, 0.0], xRotation=0.0, yRotation=0.0, zRotation=0.0, color = [1.0,1.0,1.0,1]):
+        Bike.__init__(self, position, xRotation, yRotation, zRotation, color)
+        self.i = 0
+        self.speed = 0.03
+
+   def update(self, deltaTime, camera):
+        #self.i += 1
+        #if self.i % 2 == 0:
+        #    self.direction = -np.cross(self.direction, self.position)
+        #else:
+        #    self.direction = np.cross(self.direction, self.position)
+
+
+        self.trail = []
 
         self.direction = (self.direction / np.linalg.norm(self.direction)).tolist()
         rot_mat = self.rotation_matrix(self.direction, self.speed * deltaTime / 1000)

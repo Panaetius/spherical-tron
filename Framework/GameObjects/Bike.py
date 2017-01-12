@@ -15,11 +15,10 @@ import numpy as np
 from OpenGL.GLU import *
 
 
-class Bike(GameObject, KeyboardObject, UpdatableGameobject):
-    def __init__(self, position=[50.0, 0.0, 0.0], xRotation=0.0, yRotation=0.0, zRotation=0.0, color = [1.0,1.0,1.0,1.], keyboardHandler = None):
+class Bike(GameObject, UpdatableGameobject):
+    def __init__(self, position, xRotation, yRotation, zRotation, color):
         bikeModel = Model.Model('Assets/Models/bike.obj')
         GameObject.__init__(self, bikeModel, position=position, xRotation=xRotation, yRotation=yRotation, zRotation=zRotation, color=color)
-        KeyboardObject.__init__(self, keyboardHandler)
         self.direction = [0, 0, 1]
         self.speed = 0.0
         self.acceleration = 1.0
