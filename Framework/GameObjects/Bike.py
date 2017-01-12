@@ -20,6 +20,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         bikeModel = Model.Model('Assets/Models/bike.obj')
         GameObject.__init__(self, bikeModel, position=position, xRotation=xRotation, yRotation=yRotation, zRotation=zRotation, color=color)
         KeyboardObject.__init__(self, keyboardHandler)
+        self.previousPosition = position
         self.direction = [0, 0, 1]
         self.speed = 0.0
         self.acceleration = 1.0
@@ -51,6 +52,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
             self.cloaked = True
             self.trail = []
 
+        self.previousPosition = self.position
         self.direction = (self.direction / np.linalg.norm(self.direction)).tolist()
         rot_mat = self.rotation_matrix(self.direction, self.speed * deltaTime / 1000)
         self.position = (np.dot(rot_mat, self.position)).tolist()
@@ -60,11 +62,11 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
 
         self.collisionSphereCenter = self.position + (5.8 - self.collisionSphereRadius) * dir
 
-        if self.speed > 0 and not self.cloaked:
-            self.addTrail()
-
         if self.checkCollisionWithTrail(self.trail):
             sys.exit(0) #you lost
+
+        if self.speed > 0 and not self.cloaked:
+            self.addTrail()
 
         if self.cloaked:
             self.cloakEnergy -= deltaTime * self.cloakEnergyDrain/1000
@@ -88,6 +90,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         if self.cloaked:
             color[3] = 0.5
             glDepthMask(False)
+
         glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
 
         #calculate world matrix for rotation&position
@@ -129,8 +132,11 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
 
     def addTrail(self):
         unit_pos = np.array(self.position)/np.linalg.norm(self.position)
+        dir = np.cross(self.direction, self.position)
+        dir = dir / np.linalg.norm(dir)
         currentTime = time.time() * 1000
-        self.trail.append([np.array(self.position), self.position + self.trailHeight * unit_pos, currentTime])
+        #trail should extend below sphere and behind the center of the bike for intersection
+        self.trail.append([np.array(self.position) - 5*unit_pos - 0.2 * dir, self.position + self.trailHeight * unit_pos - 0.2 * dir, currentTime])
         self.trail = [t for t in self.trail if currentTime - t[2] < self.trailLength * 1000]
 
     def renderTrail(self):
@@ -166,7 +172,36 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
             v2 = second[0] - first[0]
             normal = np.cross(v1, v2)
             normal = normal/np.linalg.norm(normal)
-            distance = np.dot(self.collisionSphereCenter - point, normal)
+            distance = abs(np.dot(self.collisionSphereCenter - point, normal))
+
+            if distance > 10:
+                continue #too far away
+
+            # check if we move through plane between frames
+            pos = np.array(self.position)
+            prev_pos = np.array(self.previousPosition)
+
+            #raise pos up a bit since it's a the bottom of the model, so curvature means a direct line would go below the plane
+            pos = pos + 0.5 * pos/np.linalg.norm(pos)
+            prev_pos = prev_pos + 0.5 * prev_pos / np.linalg.norm(prev_pos)
+            movement_ray = pos - prev_pos
+            mov_len = np.linalg.norm(movement_ray)
+            movement_ray = movement_ray / mov_len
+            den = np.dot(normal, movement_ray)
+            if abs(den) < 1e-6:
+                continue  # parallel
+
+            p0 = point - np.array(prev_pos)
+            t = np.dot(p0, normal) / den
+            if t > 1e-11 and t < mov_len:
+                intersect = prev_pos + t * movement_ray
+                i = intersect - point
+                l1 = np.linalg.norm(v1)
+                l2 = np.linalg.norm(v2)
+                d1 = np.dot(i, v1/l1)
+                d2 = np.dot(i, v2/l2)
+                if d1 > 0 and d1 < l1  and d2 > 0 and d2 < l2:
+                    return True
 
             if distance > self.collisionSphereRadius:
                 continue
@@ -174,14 +209,14 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
             #check if the sphere is actually within the rectangle
             intersect = self.collisionSphereCenter - distance * normal
             t = intersect - point
-            d1 = np.dot(t, v1)
-            d2 = np.dot(t, v2)
             l1 = np.linalg.norm(v1)
             l2 = np.linalg.norm(v2)
+            d1 = np.dot(t, v1/l1)
+            d2 = np.dot(t, v2/l2)
 
-            if d1 < -distance or d1 > l1 + distance or d2 < -distance or d2 > l2 + distance:
-                continue
+            if d1 > -distance and d1 < l1 + distance and d2 > -distance and d2 < l2 + distance:
+                return True
 
-            return True
+
 
         return False
