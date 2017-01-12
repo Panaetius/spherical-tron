@@ -8,11 +8,13 @@ from Framework.GameObjects import UpdatableGameobject
 from Framework.GameObjects.Bike import Bike
 from Framework.GameObjects.HumanPlayer import HumanPlayer
 from Framework.GameObjects.AIPlayer import AIPlayer
+from Framework.GameObjects.Sphere import Sphere
 from Framework.KeyboardHandler import KeyboardHandler
 import numpy as np
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
+from OpenGL.GLUT import *
 from OpenGL.arrays import vbo
 
 
@@ -25,14 +27,14 @@ class Scene(KeyboardHandler):
         self.bikeObject = HumanPlayer(position = [0, 500, 0], keyboardHandler = self)
         self.addGameObject(self.bikeObject)
 
-        
-
-        # sphereModel = Model.Model('Assets/Models/Sphere.obj')
-        # sphereObject = GameObject.GameObject(sphereModel, position = [0, 0, 0], color=[0, 0.5, 0, 1], wireframe=True)
+        # sphereObject = Sphere(position = [0, 0, 0], color=[0, 0, 0, 1])
         # self.addGameObject(sphereObject)
 
         self.lastUpdate = time.time() * 1000
         self.camera = Camera([0,0,100],[0,0,0],[0,1,0])
+        self.fps = 0
+        self.fps_track = []
+        self.fps_time = time.time()
 
         KeyboardHandler.__init__(self)
 
@@ -65,6 +67,7 @@ class Scene(KeyboardHandler):
         #render UI
         self.drawSpeedBar(x, y)
         self.drawEnergyBar(x, y)
+        self.drawFps()
 
         glPopMatrix()
         #glPopMatrix()
@@ -138,6 +141,17 @@ class Scene(KeyboardHandler):
         glVertex3f(endX + 1, endY + 1, -0.02)
         glEnd()
 
+    def drawFps(self):
+        glPushMatrix()
+        glScalef(0.1, 0.1, 0.1)
+        glTranslatef(10,30,0)
+        glColor3f(0, 1, 0)
+
+        for c in "{0:.2f}".format(self.fps):
+            glutStrokeCharacter(GLUT_STROKE_MONO_ROMAN, ord(c))
+
+        glPopMatrix()
+
     def update(self):
         #update the scene
         delta = time.time() * 1000 - self.lastUpdate
@@ -148,6 +162,12 @@ class Scene(KeyboardHandler):
 
 
         self.lastUpdate += delta
+        self.fps_track.append(1000 / delta)
+        self.fps_track = self.fps_track[-10:] #track last 10 framerate
+
+        if time.time() - self.fps_time > 0.2:
+            self.fps = reduce(lambda x, y: x + y, self.fps_track) / len(self.fps_track)
+            self.fps_time = time.time()
         self.down_keys = set()
 
         return

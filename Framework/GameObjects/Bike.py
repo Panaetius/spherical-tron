@@ -118,7 +118,7 @@ class Bike(GameObject, UpdatableGameobject):
             dir = np.cross(self.direction, self.position)
             dir = dir / np.linalg.norm(dir)
             #trail should extend below sphere and behind the center of the bike for intersection
-            self.trail.append([np.array(self.position) - 5*unit_pos - 0.2 * dir, self.position + self.trailHeight * unit_pos - 0.2 * dir, currentTime])
+            self.trail.append([np.array(self.position) - 5*unit_pos - 0.005 * dir, self.position + self.trailHeight * unit_pos - 0.005 * dir, currentTime])
         self.trail = [t for t in self.trail if currentTime - t[2] < self.trailLength * 1000]
 
     def renderTrail(self):
