@@ -7,6 +7,7 @@ from Framework.GameObjects import GameObject
 from Framework.GameObjects import UpdatableGameobject
 from Framework.GameObjects.Bike import Bike
 from Framework.GameObjects.HumanPlayer import HumanPlayer
+from Framework.GameObjects.AIPlayer import AIPlayer
 from Framework.KeyboardHandler import KeyboardHandler
 import numpy as np
 
@@ -15,8 +16,12 @@ class Scene(KeyboardHandler):
     def __init__(self):
         self.gameObjects = []
 
+        self.addGameObject(AIPlayer(position = [0, 500, 0]))
+
         self.bikeObject = HumanPlayer(position = [0, 500, 0], keyboardHandler = self)
         self.addGameObject(self.bikeObject)
+
+        
 
         sphereModel = Model.Model('Assets/Models/Sphere.obj')
         sphereObject = GameObject.GameObject(sphereModel, position = [0, 0, 0], color=[0, 0.5, 0, 1], wireframe=True)
