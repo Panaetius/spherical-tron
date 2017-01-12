@@ -28,8 +28,11 @@ class HumanPlayer(Bike):
         elif self.keyboardHandler.keyPressed(Keys.DOWN):
             self.speed = max(0.0, self.speed - self.acceleration * deltaTime/1000)
         elif self.keyboardHandler.keyDown(Keys.SPACE):
-            self.cloaked = True
-            self.trail = []
+            if not self.cloaked:
+                self.cloaked = True
+                self.trail = []
+            else:
+                self.cloaked = False
 
         Bike.update(self, deltaTime, camera)
 
