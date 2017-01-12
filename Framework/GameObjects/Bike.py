@@ -30,6 +30,12 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         self.trailColor = [0, 0, 1, 0.75]
         self.collisionSphereRadius = 1.2
         self.collisionSphereCenter = np.array([0,0,0])
+        self.active = True
+        self.cloaked = False
+        self.maxCloakEnergy = 1000
+        self.cloakEnergy = self.maxCloakEnergy
+        self.cloakEnergyDrain = 1000 # energy per second
+        self.energyGain = 0.1
 
 
     def update(self, deltaTime, camera):
@@ -41,6 +47,9 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
             self.speed = min(self.maxSpeed, self.speed + self.acceleration * deltaTime/1000)
         elif self.keyboardHandler.keyPressed(Keys.DOWN):
             self.speed = max(0.0, self.speed - self.acceleration * deltaTime/1000)
+        elif self.keyboardHandler.keyDown(Keys.SPACE):
+            self.cloaked = True
+            self.trail = []
 
         self.direction = (self.direction / np.linalg.norm(self.direction)).tolist()
         rot_mat = self.rotation_matrix(self.direction, self.speed * deltaTime / 1000)
@@ -51,11 +60,19 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
 
         self.collisionSphereCenter = self.position + (5.8 - self.collisionSphereRadius) * dir
 
-        if self.speed > 0:
+        if self.speed > 0 and not self.cloaked:
             self.addTrail()
 
         if self.checkCollisionWithTrail(self.trail):
             sys.exit(0) #you lost
+
+        if self.cloaked:
+            self.cloakEnergy -= deltaTime * self.cloakEnergyDrain/1000
+            if self.cloakEnergy < 0:
+                self.cloaked = False
+        elif self.cloakEnergy < self.maxCloakEnergy:
+            self.cloakEnergy = max(self.maxCloakEnergy, self.cloakEnergy + deltaTime * self.energyGain)
+
 
         #set camera to follow camera
         unit_pos = np.array(self.position)/np.linalg.norm(self.position)
@@ -66,7 +83,12 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         return
 
     def render(self):
-        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, self.color)
+        color = self.color[:]
+
+        if self.cloaked:
+            color[3] = 0.5
+            glDepthMask(False)
+        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color)
 
         #calculate world matrix for rotation&position
         forward = np.cross(self.position, self.direction)
@@ -88,6 +110,7 @@ class Bike(GameObject, KeyboardObject, UpdatableGameobject):
         glCallList(self.model.gl_list)
         glPopMatrix()
         self.renderTrail()
+        glDepthMask(True)
 
     def rotation_matrix(self, axis, theta):
         """

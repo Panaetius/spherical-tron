@@ -27,3 +27,6 @@ class GameObject(object):
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL )
 
         glPopMatrix()
+
+    def isTransparent(self):
+        return self.color[3] < 1.0
