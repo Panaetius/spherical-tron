@@ -18,7 +18,7 @@ from OpenGL.GLU import *
 
 class HumanPlayer(Bike):
 
-    def update(self, deltaTime, camera):
+   def update(self, deltaTime, camera):
         if self.keyboardHandler.keyDown(Keys.LEFT):
             self.direction = -np.cross(self.direction, self.position)
         elif self.keyboardHandler.keyDown(Keys.RIGHT):
@@ -27,6 +27,9 @@ class HumanPlayer(Bike):
             self.speed = min(self.maxSpeed, self.speed + self.acceleration * deltaTime/1000)
         elif self.keyboardHandler.keyPressed(Keys.DOWN):
             self.speed = max(0.0, self.speed - self.acceleration * deltaTime/1000)
+        elif self.keyboardHandler.keyDown(Keys.SPACE):
+            self.cloaked = True
+            self.trail = []
 
         self.direction = (self.direction / np.linalg.norm(self.direction)).tolist()
         rot_mat = self.rotation_matrix(self.direction, self.speed * deltaTime / 1000)
@@ -37,11 +40,19 @@ class HumanPlayer(Bike):
 
         self.collisionSphereCenter = self.position + (5.8 - self.collisionSphereRadius) * dir
 
-        if self.speed > 0:
+        if self.speed > 0 and not self.cloaked:
             self.addTrail()
 
         if self.checkCollisionWithTrail(self.trail):
             sys.exit(0) #you lost
+
+        if self.cloaked:
+            self.cloakEnergy -= deltaTime * self.cloakEnergyDrain/1000
+            if self.cloakEnergy < 0:
+                self.cloaked = False
+        elif self.cloakEnergy < self.maxCloakEnergy:
+            self.cloakEnergy = max(self.maxCloakEnergy, self.cloakEnergy + deltaTime * self.energyGain)
+
 
         #set camera to follow camera
         unit_pos = np.array(self.position)/np.linalg.norm(self.position)

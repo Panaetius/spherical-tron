@@ -31,6 +31,8 @@ class Scene(KeyboardHandler):
         self.gameObjects.append(gameObject)
 
     def render(self):
+        self.gameObjects.sort(key = lambda x : 0 if x.isTransparent() else 1)
+
         for gameObject in self.gameObjects:
             gameObject.render()
 

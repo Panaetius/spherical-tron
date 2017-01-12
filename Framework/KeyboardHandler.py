@@ -4,12 +4,14 @@ class KeyboardHandler(object):
         self.down_keys = set()
 
     def keyboard(self, ch, x, y):
+        ch = ord(ch)
         if not ch in self.pressed_keys:
             self.down_keys.add(ch)
         self.pressed_keys.add(ch)
         return
 
     def keyboardUp(self, ch, x, y):
+        ch = ord(ch)
         self.pressed_keys.remove(ch)
         return
 
@@ -36,3 +38,4 @@ class Keys:
     RIGHT = 357
     UP = 356
     DOWN = 358
+    SPACE = 32
