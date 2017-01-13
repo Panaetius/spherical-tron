@@ -150,6 +150,10 @@ class Bike(GameObject, UpdatableGameobject):
             first = trail[i]
             second = trail[i + 1]
             point = first[0]
+
+            if np.linalg.norm(point - self.position) > self.collisionSphereRadius * 10:
+                continue #don't do any collision checks for walls too far away
+
             v1 = first[1] - first[0]
             v2 = second[0] - first[0]
             normal = np.cross(v1, v2)
