@@ -23,3 +23,4 @@ class GameObject(object):
 
     def isTransparent(self):
         return self.color[3] < 1.0
+

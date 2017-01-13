@@ -8,7 +8,7 @@ class Camera(object):
         self.up = up
 
     def render(self):
-        #glPopMatrix()
+        glPopMatrix()
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         gluPerspective(75., 1024 / 768, 1., 300.)
@@ -17,4 +17,4 @@ class Camera(object):
         gluLookAt(self.position[0], self.position[1], self.position[2],
                   self.lookat[0], self.lookat[1], self.lookat[2],
                   self.up[0], self.up[1], self.up[2])
-        #glPushMatrix()
+        glPushMatrix()

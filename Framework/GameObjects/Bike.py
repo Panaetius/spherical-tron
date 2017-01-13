@@ -202,3 +202,6 @@ class Bike(GameObject, UpdatableGameobject):
 
 
         return False
+
+    def isTransparent(self):
+        return self.color[3] < 1.0 or self.cloaked

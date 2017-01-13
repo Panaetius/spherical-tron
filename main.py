@@ -68,7 +68,7 @@ def main():
 def display():
     global scene
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    #glPushMatrix()
+    glPushMatrix()
     color = [1.0, 0., 0., 1.]
     glMaterialfv(GL_FRONT, GL_DIFFUSE, color)
 
@@ -76,7 +76,7 @@ def display():
 
     scene.renderUI(width, height)
 
-    #glPopMatrix()
+    glPopMatrix()
     glutSwapBuffers()
     return
 

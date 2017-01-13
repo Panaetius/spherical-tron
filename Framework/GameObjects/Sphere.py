@@ -4,7 +4,7 @@ from OpenGL.GL import *
 
 
 class Sphere(GameObject):
-    def __init__(self, position, xRotation = 0, yRotation = 0, zRotation = 0, color = [0, 0, 0, 1]):
+    def __init__(self, position, xRotation = 0, yRotation = 0, zRotation = 0, color = [0, 0, 0, 1.0]):
         sphereModel = Model.Model('Assets/Models/sphere.obj')
         GameObject.__init__(self, sphereModel, position=position, xRotation=xRotation, yRotation=yRotation,
                             zRotation=zRotation, color=color)
