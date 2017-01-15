@@ -23,7 +23,7 @@ class HumanPlayer(Bike,KeyboardObject):
         self.cloakAlpha = 0.4
 
 
-    def update(self, deltaTime, camera):
+    def update(self, deltaTime, camera, enemy):
         if self.keyboardHandler.keyDown(Keys.LEFT):
             self.direction = -np.cross(self.direction, self.position)
         elif self.keyboardHandler.keyDown(Keys.RIGHT):
@@ -39,7 +39,7 @@ class HumanPlayer(Bike,KeyboardObject):
             else:
                 self.cloaked = False
 
-        Bike.update(self, deltaTime, camera)
+        Bike.update(self, deltaTime, camera, enemy)
 
         #set camera to follow camera
         dir = np.cross(self.direction, self.position)

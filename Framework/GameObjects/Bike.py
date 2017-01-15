@@ -39,7 +39,7 @@ class Bike(GameObject, UpdatableGameobject):
         self.cloakAlpha = 0.1
 
 
-    def update(self, deltaTime, camera):
+    def update(self, deltaTime, camera, enemy):
         self.previousPosition = self.position
         self.direction = (self.direction / np.linalg.norm(self.direction)).tolist()
         rot_mat = self.rotation_matrix(self.direction, self.speed * deltaTime / 1000)
@@ -50,7 +50,7 @@ class Bike(GameObject, UpdatableGameobject):
 
         self.collisionSphereCenter = self.position + (5.8 - self.collisionSphereRadius) * dir
 
-        if self.checkCollisionWithTrail(self.trail):
+        if self.checkCollisionWithTrail(self.trail) or self.checkCollisionWithTrail(enemy.trail):
             sys.exit(0) #you lost
 
         if not self.cloaked:
@@ -146,7 +146,7 @@ class Bike(GameObject, UpdatableGameobject):
         glEnd()
 
     def checkCollisionWithTrail(self, trail):
-        for i in range(0, len(self.trail) - 1, 1):
+        for i in range(0, len(trail) - 1, 1):
             first = trail[i]
             second = trail[i + 1]
             point = first[0]

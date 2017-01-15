@@ -22,10 +22,11 @@ class Scene(KeyboardHandler):
     def __init__(self):
         self.gameObjects = []
 
-        self.addGameObject(AIPlayer(position = [0, 500, 0]))
+        self.bot = AIPlayer(position = [0, 500, 0])
+        self.addGameObject(self.bot)
 
-        self.bikeObject = HumanPlayer(position = [0, 500, 0], keyboardHandler = self)
-        self.addGameObject(self.bikeObject)
+        self.human = HumanPlayer(position = [0, 500, 0], keyboardHandler = self)
+        self.addGameObject(self.human)
 
         sphereObject = Sphere(position = [0, 0, 0], color=[0, 0, 0, 1])
         self.addGameObject(sphereObject)
@@ -102,7 +103,7 @@ class Scene(KeyboardHandler):
         glVertex3f(x, endY, -0.02)
         glEnd()
 
-        endY = y * 0.5 * self.bikeObject.speed / self.bikeObject.maxSpeed
+        endY = y * 0.5 * self.human.speed / self.human.maxSpeed
 
         glColor3f(0, 0, 1)
         glBegin(GL_QUADS)
@@ -133,7 +134,7 @@ class Scene(KeyboardHandler):
         glVertex3f(endX, 0, -0.02)
         glVertex3f(endX, endY, -0.02)
         glEnd()
-        endY = y * 0.5 * self.bikeObject.cloakEnergy / self.bikeObject.maxCloakEnergy
+        endY = y * 0.5 * self.human.cloakEnergy / self.human.maxCloakEnergy
 
         glColor3f(0, 1, 0)
         glBegin(GL_QUADS)
@@ -161,7 +162,12 @@ class Scene(KeyboardHandler):
         delta = time.time() * 1000 - self.lastUpdate
         for gameObject in self.gameObjects:
             if hasattr(gameObject, 'update'):
-                gameObject.update(delta, self.camera)
+                if gameObject is self.human:
+                    gameObject.update(delta, self.camera, self.bot)
+                elif gameObject is self.bot:
+                    gameObject.update(delta, self.camera, self.human)
+                else:
+                    gameObject.update(delta, self.camera)
 
 
 

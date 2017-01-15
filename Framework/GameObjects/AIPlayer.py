@@ -23,14 +23,14 @@ class AIPlayer(Bike):
         self.i = 0
         self.speed = 0.03
 
-   def update(self, deltaTime, camera):
-        #self.i += 1
-        #if self.i % 2 == 0:
-        #    self.direction = -np.cross(self.direction, self.position)
-        #else:
-        #    self.direction = np.cross(self.direction, self.position)
+   def update(self, deltaTime, camera, enemy):
+        rand = np.random.rand()
 
+        if rand < 0.02:
+            self.direction = -np.cross(self.direction, self.position)
+        elif rand > 0.98:
+            self.direction = np.cross(self.direction, self.position)
 
-        Bike.update(self, deltaTime, camera)
+        Bike.update(self, deltaTime, camera, enemy)
 
         return
