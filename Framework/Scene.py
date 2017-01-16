@@ -1,4 +1,6 @@
 import time
+import ctypes
+
 from operator import add
 
 from Framework import Model
@@ -36,6 +38,7 @@ class Scene(KeyboardHandler):
         self.fps = 0
         self.fps_track = []
         self.fps_time = time.time()
+        self.finished = False
 
         KeyboardHandler.__init__(self)
 
@@ -164,8 +167,16 @@ class Scene(KeyboardHandler):
             if hasattr(gameObject, 'update'):
                 if gameObject is self.human:
                     gameObject.update(delta, self.camera, self.bot)
+                    if gameObject.crashed:
+                        MessageBox = ctypes.windll.user32.MessageBoxA
+                        MessageBox(None, 'You lost!','Game Over!', 0)
+                        self.finished = True
                 elif gameObject is self.bot:
                     gameObject.update(delta, self.camera, self.human)
+                    if gameObject.crashed:
+                        MessageBox = ctypes.windll.user32.MessageBoxA
+                        MessageBox(None, 'You Won!','You Won!', 0)
+                        self.finished = True
                 else:
                     gameObject.update(delta, self.camera)
 

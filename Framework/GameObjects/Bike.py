@@ -37,6 +37,7 @@ class Bike(GameObject, UpdatableGameobject):
         self.cloakEnergyDrain = 1000 # energy per second
         self.energyGain = 250 # energy/second
         self.cloakAlpha = 0.1
+        self.crashed = False
 
 
     def update(self, deltaTime, camera, enemy):
@@ -51,7 +52,8 @@ class Bike(GameObject, UpdatableGameobject):
         self.collisionSphereCenter = self.position + (5.8 - self.collisionSphereRadius) * dir
 
         if self.checkCollisionWithTrail(self.trail) or self.checkCollisionWithTrail(enemy.trail):
-            sys.exit(0) #you lost
+            self.crashed = True
+            return
 
         if not self.cloaked:
             self.addTrail()

@@ -85,6 +85,9 @@ def gameloop():
     # main game loop, called repeatedly
     global scene
     scene.update()
+    if scene.finished:
+    	sys.exit(0)
+
     glutPostRedisplay()
     return
 
