@@ -21,7 +21,7 @@ class AIPlayer(Bike):
    def __init__(self, position=[50.0, 0.0, 0.0], xRotation=0.0, yRotation=0.0, zRotation=0.0, color = [1.0,1.0,1.0,1]):
         Bike.__init__(self, position, xRotation, yRotation, zRotation, color)
         self.i = 0
-        self.speed = 0.03
+        self.speed = 0.1
 
    def update(self, deltaTime, camera, enemy):
 
@@ -37,6 +37,14 @@ class AIPlayer(Bike):
             self.direction = -np.cross(self.direction, self.position)
         elif dot > 0.6:
             self.direction = np.cross(self.direction, self.position)
+
+
+        rand = np.random.random()
+        if rand < 0.01 and not self.cloaked:
+                self.cloaked = True
+                self.trail = []
+        elif rand > 9.99:
+                self.cloaked = False
 
         Bike.update(self, deltaTime, camera, enemy)
 
