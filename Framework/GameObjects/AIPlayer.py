@@ -22,6 +22,7 @@ class AIPlayer(Bike):
         Bike.__init__(self, position, xRotation, yRotation, zRotation, color)
         self.i = 0
         self.speed = 0.1
+        self.trailColor = [1, 0, 0, 0.5]
 
    def update(self, deltaTime, camera, enemy):
 

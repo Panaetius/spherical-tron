@@ -21,6 +21,7 @@ class HumanPlayer(Bike,KeyboardObject):
         KeyboardObject.__init__(self, keyboardHandler)
         Bike.__init__(self, position, xRotation, yRotation, zRotation, color)
         self.cloakAlpha = 0.4
+        self.trailColor = [0, 0, 1, 0.5]
 
 
     def update(self, deltaTime, camera, enemy):
